@@ -1,0 +1,22 @@
+[package]
+name = "domain_gen"
+version = "0.1.0"
+authors = ["Serra Allgood <serra.allgood@gmail.com>"]
+edition = "2018"
+description = "Domain name generation tool"
+homepage = "https://github.com/serra-allgood/domain_gen"
+repository = "https://github.com/serra-allgood/domain_gen"
+readme = "README.md"
+keywords = [ "toy", "domain generation" ]
+categories = [ "command-line-utilities" ]
+license = "GPL-2.0"
+
+[profile.release]
+panic = "abort"
+
+[[bin]]
+name = "domain_gen"
+path = "src/main.rs"
+
+[dependencies]
+num_cpus = "1"
