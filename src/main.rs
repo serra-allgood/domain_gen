@@ -57,10 +57,13 @@ fn possible_plural(tld: &str) -> bool {
 
 fn push_domain(domains: Arc<Mutex<Vec<String>>>, word: &str, tld: &str) {
     let mut domain = String::with_capacity(word.len() + 1);
+    let target = word.len() - tld.len();
     for (i, chr) in word.chars().enumerate() {
         domain.push(chr);
-        if word.len() - tld.len() - 1 == i {
+        if word_ends_in_tld(word, tld) && target - 1 == i || possible_plural(tld) && target == i {
             domain.push('.');
+            domain.push_str(tld);
+            break;
         }
     }
 
