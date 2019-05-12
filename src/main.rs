@@ -1,10 +1,10 @@
 extern crate num_cpus;
-use std::sync::{Arc, Mutex};
-use std::thread;
+
 use std::fs::File;
 use std::io::Read;
 use std::process;
-
+use std::sync::{Arc, Mutex};
+use std::thread;
 fn main() {
     let cpus = num_cpus::get();
     let words = Arc::new(read_file("words.txt"));
@@ -29,9 +29,11 @@ fn main() {
                     }
 
                     if word_ends_in_tld(&word, &tld) {
-                        push_domain(Arc::clone(&domains), &word, &tld);
-                    } else if possible_plural(&tld) && word_ends_in_tld(&word, &tld[0..(tld.len() - 1)]) {
-                        push_domain(Arc::clone(&domains), &word, &tld);
+                        push_domain(Arc::clone(&domains), &word, &tld, true);
+                    } else if possible_plural(&tld)
+                        && word_ends_in_tld(&word, &tld[0..(tld.len() - 1)])
+                    {
+                        push_domain(Arc::clone(&domains), &word, &tld, false);
                     }
                 }
             }
@@ -55,17 +57,12 @@ fn possible_plural(tld: &str) -> bool {
     &tld[(tld.len() - 1)..tld.len()] == "s"
 }
 
-fn push_domain(domains: Arc<Mutex<Vec<String>>>, word: &str, tld: &str) {
-    let mut domain = String::with_capacity(word.len() + 1);
-    let target = word.len() - tld.len();
-    for (i, chr) in word.chars().enumerate() {
-        domain.push(chr);
-        if word_ends_in_tld(word, tld) && target - 1 == i || possible_plural(tld) && target == i {
-            domain.push('.');
-            domain.push_str(tld);
-            break;
-        }
+fn push_domain(domains: Arc<Mutex<Vec<String>>>, word: &str, tld: &str, ends_with: bool) {
+    let mut end = word.len() - tld.len();
+    if !ends_with {
+        end += 1;
     }
+    let domain = format!("{}.{}", &word[0..end], tld);
 
     domains.lock().unwrap().push(domain);
 }
@@ -92,14 +89,17 @@ fn read_file(name: &str) -> Vec<String> {
             eprintln!("Failed to open {}", name);
             process::exit(1);
         }
-        Ok(file) => file
+        Ok(file) => file,
     };
     match file.read_to_string(&mut strings) {
         Err(why) => {
             eprintln!("Failed to read {}: {}", name, why);
             process::exit(1);
         }
-        Ok(_) => ()
+        Ok(_) => (),
     }
-    strings.lines().map(|s| String::from(s)).collect::<Vec<String>>()
+    strings
+        .lines()
+        .map(|s| String::from(s))
+        .collect::<Vec<String>>()
 }
