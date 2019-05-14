@@ -1,6 +1,6 @@
 [package]
 name = "domain_gen"
-version = "0.1.0"
+version = "0.2.0"
 authors = ["Serra Allgood <serra.allgood@gmail.com>"]
 edition = "2018"
 description = "Domain name generation tool"
@@ -20,3 +20,6 @@ path = "src/main.rs"
 
 [dependencies]
 num_cpus = "1"
+regex = "1"
+reqwest = "0.9.16"
+whois-rust = "1.1.6"
